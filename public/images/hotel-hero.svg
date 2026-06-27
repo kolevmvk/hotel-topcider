@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" fill="none" role="img" aria-label="Hotel Topčider">
+  <defs>
+    <linearGradient id="sky" x1="600" y1="0" x2="600" y2="600" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1a3050"/>
+      <stop offset="100%" stop-color="#0a1628"/>
+    </linearGradient>
+    <linearGradient id="facade" x1="0" y1="200" x2="0" y2="600" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2a3f58"/>
+      <stop offset="100%" stop-color="#152536"/>
+    </linearGradient>
+    <linearGradient id="warmLight" x1="600" y1="400" x2="600" y2="600" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#c4a876" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#c4a876" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#sky)"/>
+  <!-- Distant trees -->
+  <ellipse cx="120" cy="480" rx="80" ry="60" fill="#1c3328" opacity="0.5"/>
+  <ellipse cx="1080" cy="490" rx="90" ry="65" fill="#1c3328" opacity="0.5"/>
+  <!-- Main building -->
+  <rect x="280" y="120" width="640" height="420" fill="url(#facade)"/>
+  <!-- Roof pediment -->
+  <polygon points="260,120 600,40 940,120" fill="#0f2744"/>
+  <line x1="260" y1="120" x2="940" y2="120" stroke="#9a7b4f" stroke-width="2"/>
+  <!-- Columns -->
+  <rect x="420" y="200" width="24" height="280" fill="#1e3348"/>
+  <rect x="520" y="200" width="24" height="280" fill="#1e3348"/>
+  <rect x="656" y="200" width="24" height="280" fill="#1e3348"/>
+  <rect x="756" y="200" width="24" height="280" fill="#1e3348"/>
+  <!-- Entrance portico -->
+  <rect x="480" y="340" width="240" height="200" fill="#091a2e"/>
+  <rect x="520" y="380" width="160" height="160" fill="#0f2744"/>
+  <!-- Warm lobby glow -->
+  <rect x="540" y="400" width="120" height="120" fill="url(#warmLight)"/>
+  <!-- Windows - warm lit -->
+  <g fill="#c4a876" opacity="0.35">
+    <rect x="320" y="160" width="60" height="50" rx="1"/>
+    <rect x="400" y="160" width="60" height="50" rx="1"/>
+    <rect x="740" y="160" width="60" height="50" rx="1"/>
+    <rect x="820" y="160" width="60" height="50" rx="1"/>
+    <rect x="320" y="240" width="60" height="50" rx="1"/>
+    <rect x="820" y="240" width="60" height="50" rx="1"/>
+    <rect x="320" y="320" width="60" height="50" rx="1"/>
+    <rect x="820" y="320" width="60" height="50" rx="1"/>
+  </g>
+  <!-- Window frames -->
+  <g stroke="#3d5268" stroke-width="1.5" fill="none">
+    <rect x="320" y="160" width="60" height="50" rx="1"/>
+    <rect x="400" y="160" width="60" height="50" rx="1"/>
+    <rect x="740" y="160" width="60" height="50" rx="1"/>
+    <rect x="820" y="160" width="60" height="50" rx="1"/>
+  </g>
+  <!-- Steps -->
+  <rect x="460" y="520" width="280" height="16" fill="#2a3f58"/>
+  <rect x="440" y="536" width="320" height="16" fill="#1e3348"/>
+  <rect x="420" y="552" width="360" height="16" fill="#152536"/>
+  <!-- Ground -->
+  <rect x="0" y="568" width="1200" height="32" fill="#0a1628"/>
+  <!-- Flag -->
+  <line x1="600" y1="40" x2="600" y2="10" stroke="#5c6573" stroke-width="2"/>
+  <rect x="600" y="10" width="36" height="22" fill="#0f2744" stroke="#9a7b4f" stroke-width="0.5"/>
+</svg>
