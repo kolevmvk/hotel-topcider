@@ -5,6 +5,7 @@ import { useState } from "react";
 import { PROBLEM_CATEGORIES } from "@/lib/constants";
 import { AppIcon } from "@/lib/icons";
 import { addProblem, generateId } from "@/lib/storage";
+import { trackBusiness } from "@/lib/analytics/client";
 import type { ProblemCategory } from "@/lib/types";
 import { useAuth } from "./AuthProvider";
 
@@ -41,6 +42,8 @@ export default function ProblemForm() {
       status: "Primljeno",
       createdAt: new Date().toISOString(),
     });
+
+    trackBusiness("problem.submit", { category, room: session.room }, "problem.submit", category);
 
     setSubmitted(true);
     setDescription("");

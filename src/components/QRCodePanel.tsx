@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
+import { APP_NAME } from "@/lib/constants";
 import { AppIcon } from "@/lib/icons";
 
 function getAppUrl(): string {
@@ -47,7 +48,7 @@ export default function QRCodePanel() {
     if (!canvas) return;
 
     const link = document.createElement("a");
-    link.download = "hotel-topcider-qr.png";
+    link.download = "vojni-hotel-qr.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
   }
@@ -56,10 +57,10 @@ export default function QRCodePanel() {
     <div className="mx-auto max-w-md ht-panel-bordered p-8 text-center print:border-2 print:shadow-none">
       <div className="mb-2 flex items-center justify-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center border border-ht-gold/40 bg-ht-navy text-xs font-bold tracking-widest text-ht-gold-light">
-          HT
+          VH
         </div>
         <div className="text-left">
-          <h2 className="ht-display text-xl text-ht-navy">Hotel Topčider</h2>
+          <h2 className="ht-display text-xl text-ht-navy">{APP_NAME}</h2>
           <p className="text-sm text-ht-muted">Digitalni servis</p>
         </div>
       </div>

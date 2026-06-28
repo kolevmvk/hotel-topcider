@@ -10,11 +10,15 @@
     "generate-icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
+    "@types/react-google-recaptcha": "^2.1.9",
     "lucide-react": "^1.21.0",
     "next": "^15.3.3",
     "qrcode": "^1.5.4",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-google-recaptcha": "^3.1.0",
+    "ua-parser-js": "^2.0.10"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -23,6 +27,7 @@
     "@types/qrcode": "^1.5.5",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
+    "@types/ua-parser-js": "^0.7.39",
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.3",
     "sharp": "^0.34.2",

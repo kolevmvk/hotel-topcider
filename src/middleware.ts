@@ -3,6 +3,32 @@ import type { NextRequest } from "next/server";
 import { ACCESS_COOKIE_NAME, isPublicPath } from "@/lib/access/constants";
 import { verifyAccessSessionToken } from "@/lib/access/session";
 
+function logAccessDenied(request: NextRequest, pathname: string, method: string) {
+  const secret = process.env.ANALYTICS_INTERNAL_SECRET;
+  if (!secret) return;
+
+  const url = new URL("/api/analytics/security", request.url);
+  void fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-analytics-internal-secret": secret,
+      "x-forwarded-for":
+        request.headers.get("x-forwarded-for") ??
+        request.headers.get("x-real-ip") ??
+        "unknown",
+      "user-agent": request.headers.get("user-agent") ?? "unknown",
+      referer: request.headers.get("referer") ?? "",
+    },
+    body: JSON.stringify({
+      eventName: "access_denied",
+      success: false,
+      path: pathname,
+      method,
+    }),
+  }).catch(() => undefined);
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -23,6 +49,8 @@ export async function middleware(request: NextRequest) {
   const session = await verifyAccessSessionToken(token);
 
   if (!session.valid) {
+    logAccessDenied(request, pathname, request.method);
+
     if (pathname.startsWith("/api/")) {
       return NextResponse.json(
         { error: "Potreban je pristup aplikaciji." },
@@ -40,7 +68,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

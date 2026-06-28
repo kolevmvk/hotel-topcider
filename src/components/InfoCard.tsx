@@ -40,7 +40,7 @@ export default function InfoCard({ title, content, icon = "info" }: InfoCardProp
       </button>
       {expanded && (
         <div className="border-t border-ht-border-light px-6 pb-6 pt-4 sm:px-7 sm:pb-7">
-          <p className="text-base leading-relaxed text-ht-text">{content}</p>
+          <p className="whitespace-pre-wrap text-base leading-relaxed text-ht-text">{content}</p>
         </div>
       )}
     </article>

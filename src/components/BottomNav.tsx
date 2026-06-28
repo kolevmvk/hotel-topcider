@@ -46,6 +46,8 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              data-track={`nav.bottom.${item.href}`}
+              data-track-label={item.label}
               className={`touch-target relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[0.65rem] font-medium uppercase tracking-wide transition-colors ${
                 isActive ? "text-ht-navy" : "text-ht-muted"
               }`}

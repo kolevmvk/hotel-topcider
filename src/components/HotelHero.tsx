@@ -42,7 +42,7 @@ export default function HotelHero({
         <div className="absolute inset-0 bg-gradient-to-r from-ht-navy-dark/95 via-ht-navy-dark/40 to-transparent" />
 
         <div className={`relative flex h-full ${minH} flex-col justify-end px-6 py-5 sm:px-10 sm:py-9`}>
-          <p className="ht-label mb-2 text-ht-gold-light">Vojni hotel · Beograd</p>
+          <p className="ht-label mb-2 text-ht-gold-light">Beograd</p>
           <h1 className={`ht-display max-w-xl leading-tight text-white ${compact ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl md:text-[2.75rem]"}`}>
             {APP_NAME}
           </h1>

@@ -50,6 +50,13 @@ export interface Notice {
   createdAt: string;
 }
 
+export interface InfoSection {
+  id: string;
+  title: string;
+  content: string;
+  icon: string;
+}
+
 export type ProblemCategory =
   | "voda"
   | "struja"

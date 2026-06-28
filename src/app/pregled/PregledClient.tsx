@@ -140,19 +140,17 @@ export default function PregledPage() {
           Bezbednost
         </h2>
         <ul className="space-y-2 text-sm text-ht-muted">
-          <li>Dva nivoa pristupa: /access gate + uloge u aplikaciji</li>
-          <li>httpOnly cookie za site access — ne dostupan JavaScript-u</li>
-          <li>Audit log pokušaja pristupa bez osetljivih podataka (PIN/lozinka)</li>
+          <li>Zaštićen ulaz u sistem — samo ovlašćena lica</li>
+          <li>Evidencija pokušaja pristupa bez osetljivih podataka</li>
+          <li>Uloge i ovlašćenja odvojeni po funkciji (stanar, gost, osoblje)</li>
         </ul>
       </section>
 
-      {process.env.NEXT_PUBLIC_SHOW_DEMO === "true" && (
-        <p className="no-print text-center text-xs text-ht-muted">
-          <Link href="/login" className="underline">
-            Tehnički demo
-          </Link>
-        </p>
-      )}
+      <p className="no-print text-center text-sm text-ht-muted">
+        <Link href="/login" className="font-semibold text-ht-navy underline underline-offset-2">
+          Uđi u operativni sistem hotela
+        </Link>
+      </p>
 
       <style jsx global>{`
         @media print {

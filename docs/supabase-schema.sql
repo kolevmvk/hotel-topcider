@@ -1,4 +1,4 @@
--- Hotel Topčider — Supabase / PostgreSQL šema za produkciju
+-- Vojni hotel — Supabase / PostgreSQL šema za produkciju
 -- Pokrenuti u Supabase SQL Editor-u ili psql-u.
 -- MVP aplikacija koristi localStorage; ova šema je ciljna migracija.
 
@@ -27,7 +27,7 @@ create index if not exists idx_access_credentials_username
 -- audit_logs — evidencija pristupa i app prijava
 -- ============================================================
 create type public.audit_event_type as enum ('access_login', 'app_login');
-create type public.app_login_type as enum ('stanar', 'dezurni', 'upravnik');
+create type public.app_login_type as enum ('stanar', 'dezurni', 'upravnik', 'gost');
 
 create table if not exists public.audit_logs (
   id uuid primary key default gen_random_uuid(),
@@ -52,6 +52,65 @@ create index if not exists idx_audit_logs_timestamp
 
 create index if not exists idx_audit_logs_event_type
   on public.audit_logs (event_type, timestamp desc);
+
+-- ============================================================
+-- analytics_events — jedinstveni event stream (navigacija, klikovi, biznis, bezbednost)
+-- ============================================================
+create type public.analytics_category as enum (
+  'security', 'navigation', 'interaction', 'business'
+);
+create type public.analytics_actor_type as enum (
+  'anonymous', 'access_user', 'app_user'
+);
+create type public.analytics_device_type as enum (
+  'mobile', 'tablet', 'desktop', 'unknown'
+);
+
+create table if not exists public.analytics_events (
+  id uuid primary key default gen_random_uuid(),
+  category public.analytics_category not null,
+  event_name text not null,
+  success boolean,
+  timestamp timestamptz not null default now(),
+  actor_type public.analytics_actor_type not null default 'anonymous',
+  actor_id text,
+  actor_role public.user_role,
+  actor_label text,
+  room text,
+  visit_id text,
+  session_id text,
+  path text,
+  referrer text,
+  target_id text,
+  target_label text,
+  device_type public.analytics_device_type not null default 'unknown',
+  os text,
+  browser text,
+  is_pwa boolean not null default false,
+  viewport_w integer,
+  viewport_h integer,
+  ip_address text,
+  user_agent text,
+  is_bot boolean not null default false,
+  metadata jsonb not null default '{}'::jsonb
+);
+
+create index if not exists idx_analytics_events_timestamp
+  on public.analytics_events (timestamp desc);
+
+create index if not exists idx_analytics_events_category_name
+  on public.analytics_events (category, event_name, timestamp desc);
+
+create index if not exists idx_analytics_events_actor
+  on public.analytics_events (actor_id, timestamp desc)
+  where actor_id is not null;
+
+create index if not exists idx_analytics_events_bot
+  on public.analytics_events (is_bot, timestamp desc)
+  where is_bot = true;
+
+create index if not exists idx_analytics_events_device
+  on public.analytics_events (device_type, timestamp desc);
 
 -- ============================================================
 -- users — stanari i službeni nalozi (app login)
@@ -250,6 +309,58 @@ create index if not exists idx_room_handovers_room
   on public.room_handovers (room_id, created_at desc);
 
 -- ============================================================
+-- assistant — lokalni AI asistent (sesije, poruke, uvidi)
+-- ============================================================
+create type public.assistant_audience as enum (
+  'executive', 'operational', 'general', 'developer'
+);
+
+create type public.assistant_message_role as enum ('user', 'assistant');
+
+create type public.assistant_insight_type as enum (
+  'pain_point', 'priority', 'sentiment', 'current_process', 'usefulness', 'topic', 'open_question'
+);
+
+create table if not exists public.assistant_sessions (
+  id uuid primary key default gen_random_uuid(),
+  access_username text not null,
+  organization text not null,
+  audience public.assistant_audience not null default 'general',
+  visit_id text,
+  phase text not null default 'welcome',
+  message_count integer not null default 0,
+  started_at timestamptz not null default now(),
+  ended_at timestamptz,
+  last_activity_at timestamptz not null default now()
+);
+
+create index if not exists idx_assistant_sessions_username
+  on public.assistant_sessions (access_username, last_activity_at desc);
+
+create table if not exists public.assistant_messages (
+  id uuid primary key default gen_random_uuid(),
+  session_id uuid not null references public.assistant_sessions(id) on delete cascade,
+  role public.assistant_message_role not null,
+  content text not null,
+  phase text not null default 'welcome',
+  timestamp timestamptz not null default now()
+);
+
+create index if not exists idx_assistant_messages_session
+  on public.assistant_messages (session_id, timestamp);
+
+create table if not exists public.assistant_insights (
+  id uuid primary key default gen_random_uuid(),
+  session_id uuid not null references public.assistant_sessions(id) on delete cascade,
+  insight_type public.assistant_insight_type not null,
+  value text not null,
+  extracted_at timestamptz not null default now()
+);
+
+create index if not exists idx_assistant_insights_session
+  on public.assistant_insights (session_id, extracted_at);
+
+-- ============================================================
 -- RLS placeholders (prilagoditi pre produkcije)
 -- ============================================================
 -- alter table public.users enable row level security;
@@ -258,4 +369,8 @@ create index if not exists idx_room_handovers_room
 
 comment on table public.access_credentials is 'Prvi sloj — pristup celoj aplikaciji pre /login';
 comment on table public.audit_logs is 'Evidencija pokušaja pristupa i app prijava (bez PIN/password)';
+comment on table public.analytics_events is 'Analitika: navigacija, klikovi, poslovni događaji, bezbednost (bez PIN/password)';
+comment on table public.assistant_sessions is 'AI asistent — sesije po access username / komandi';
+comment on table public.assistant_messages is 'AI asistent — poruke razgovora';
+comment on table public.assistant_insights is 'AI asistent — izvučeni uvidi iz razgovora';
 comment on table public.users is 'App korisnici — stanari (soba+PIN) i službeni nalozi';

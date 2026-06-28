@@ -1,14 +1,14 @@
 import type { UserStatus } from "./types";
 
-export const APP_NAME = "Hotel Topčider";
-export const APP_SHORT_NAME = "Topčider";
+export const APP_NAME = "Vojni hotel";
+export const APP_SHORT_NAME = "Vojni hotel";
 export const APP_DESCRIPTION =
   "Digitalni servis za stanare i korisnike hotela — obaveštenja, prijave, kontakti i korisne informacije.";
 
-/** Oznaka faze — prezentaciona demo, ne zvanična produkcija */
-export const APP_PHASE_LABEL = "Prezentaciona demo verzija";
+/** @deprecated Koristiti PORTAL_* iz presentation.ts na UI; zadržano za kompatibilnost */
+export const APP_PHASE_LABEL = "Digitalni servis hotela";
 export const APP_PHASE_NOTICE =
-  "Ovo nije zvanična aplikacija hotela. Pristup je ograničen na pozvane učesnike kojima su prosleđeni pristupni podaci.";
+  "Siguran pristup za stanare, goste i osoblje. Prebacujte uloge da isprobate ceo tok rada.";
 
 export const THEME_COLOR = "#0f2744";
 export const BACKGROUND_COLOR = "#f5f6f8";
@@ -26,6 +26,7 @@ export const STORAGE_KEYS = {
   AUDIT_LOGS: "ht_audit_logs",
   ROOMS: "ht_rooms",
   HANDOVERS: "ht_handovers",
+  INFO_SECTIONS: "ht_info_sections",
 } as const;
 
 export const UPRAVNIK_CREDENTIALS = {
@@ -101,7 +102,7 @@ export const INFO_SECTIONS = [
     title: "Smeštaj i boravak",
     icon: "bed" as const,
     content:
-      "Hotel Topčider obezbeđuje uređen smeštaj za stanare i korisnike hotela. Sobe se održavaju prema utvrđenom rasporedu. Za promenu smeštaja ili dodatne potrebe obratite se upravi hotela.",
+      "Vojni hotel obezbeđuje uređen smeštaj za stanare i korisnike. Sobe se održavaju prema utvrđenom rasporedu. Za promenu smeštaja ili dodatne potrebe obratite se upravi hotela.",
   },
   {
     id: "higijena",

@@ -1,4 +1,4 @@
-# Hotel Topčider
+# Vojni hotel
 
 Digitalni servis za stanare i osoblje hotela: obaveštenja, prijave problema, poruke, zadaci, dnevnik smene i panel upravnika.
 
@@ -75,14 +75,44 @@ npm run dev
 | `SITE_ACCESS_USERS` | Da | JSON niz: `[{"username":"...","password":"..."}]` |
 | `NEXT_PUBLIC_APP_URL` | Ne | Javni URL (QR, PWA) |
 | `NEXT_PUBLIC_SHOW_DEMO` | Ne | Prikaži demo panel na produkciji |
+| `ASSISTANT_ENABLED` | Ne | Lokalni AI asistent (default true) |
+| `OLLAMA_BASE_URL` | Ne | Ollama API (default `http://127.0.0.1:11434`) |
+| `ASSISTANT_MODEL` | Ne | Model tag (npr. `gemma3:4b`) |
+| `ASSISTANT_BACKEND` | Ne | `composite` (dev) ili `supabase` |
 
 Primer `.env.local`:
 
 ```env
 SITE_ACCESS_SECRET=dev-change-me-use-openssl-rand-base64-32
-SITE_ACCESS_USERS=[{"username":"hotel","password":"pristup123"}]
+SITE_ACCESS_USERS=[{"username":"hotel","password":"pristup123","organization":"Uprava hotela","audience":"general"}]
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+ASSISTANT_ENABLED=true
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+ASSISTANT_MODEL=gemma3:4b
 ```
+
+### Lokalni AI asistent (Ollama / Gemma)
+
+1. Instalirajte [Ollama](https://ollama.com) i povucite model:
+
+```bash
+ollama pull gemma3:4b
+ollama serve
+```
+
+2. U `.env.local` postavite `ASSISTANT_ENABLED=true` i URL modela.
+3. Posle `/access` ulaska — dugme asistenta (donji desni ugao). Prepoznaje komandu po **access username** profilu.
+4. Razgovori i uvidi: **`/interno/analitika`** → tab **Asistent** (samo `ANALYTICS_VIEWERS`).
+
+Profil po komandi u `SITE_ACCESS_USERS`:
+
+```json
+{"username":"gs-poseta","password":"...","organization":"Generalštab VS","audience":"executive","suggestedSteps":["/pregled","Uloga: upravnik"]}
+```
+
+`audience`: `executive` | `operational` | `general` | `developer`
+
+Na Vercel-u bez Ollama: `ASSISTANT_ENABLED=false` ili fallback odgovori bez AI.
 
 ### Dodavanje pozvanih učesnika (prezentacija)
 
@@ -109,24 +139,28 @@ Na **Vercel** obavezno postavite `SITE_ACCESS_SECRET` i `SITE_ACCESS_USERS` u Pr
 
 ---
 
-## Evidencija pristupa (audit)
+## Analitika i evidencija pristupa
 
-Svaki pokušaj se evidentira **bez PIN-a i lozinki**:
+Jedinstveni **event stream** (`analytics_events` u Supabase) beleži:
 
-**Access pokušaji:** timestamp, username, success, IP, userAgent, referer, path, method
+- **Ko:** ime, uloga, soba (posle app login-a); access username za gate
+- **Šta:** pregled stranica, klikovi (auto + `data-track`), poslovni događaji (prijava, handover, poruke)
+- **Uređaj:** mobilni / tablet / računar, OS, browser, PWA
+- **Bezbednost:** neuspešni login-i, `access_denied`, verovatni botovi (heuristika UA)
 
-**App login pokušaji:** loginType (stanar/dezurni/upravnik), identifier (soba ili username), success, IP, userAgent
+Upravnik u app-u vidi samo **evidenciju login pokušaja** (Operativa). Punu analitiku pregledate na privatnoj adresi **`/interno/analitika`** (nije u meniju) — pristup samo ako je vaš access username u `ANALYTICS_VIEWERS`.
 
-Upravnik pregleda logove u **Panel upravnika → tab „Evidencija pristupa”**.
+**Env:** `ANALYTICS_BACKEND=supabase`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ANALYTICS_INTERNAL_SECRET` (middleware logging).
 
-### MVP ograničenja audit-a
+Lokalni dev bez Supabase-a: `ANALYTICS_BACKEND=composite` → `.data/analytics-events.json`.
 
-- Server koristi `CompositeAuditAdapter` (fajl `.data/audit-logs.json` + in-memory fallback)
-- Panel kešira poslednji fetch u `localStorage` (`ht_audit_logs`) ako API nije dostupan
-- Na serverless okruženju (Vercel) fajl **nije pouzdan** — logovi mogu biti nestabilni između instanci
-- **Produkcija:** migracija na Supabase tabelu `audit_logs` (vidi `docs/supabase-schema.sql`)
+Svaki pokušaj login-a se evidentira **bez PIN-a i lozinki**.
 
-Adapter interfejs: `src/lib/audit/types.ts` → `AuditAdapter` — implementacija za Supabase dodaje se paralelno.
+### MVP ograničenja
+
+- Read API za analitiku zahteva access cookie + `role=upravnik` (app auth je još u localStorage)
+- Na Vercel-u bez Supabase-a logovi **nisu trajni**
+- Pokrenuti SQL iz `docs/supabase-schema.sql` (tabela `analytics_events`)
 
 ---
 
@@ -226,4 +260,4 @@ docs/
 
 ## Licenca
 
-Interni projekat Hotela Topčider.
+Interni projekat Vojnog hotela.

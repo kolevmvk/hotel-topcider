@@ -182,9 +182,9 @@ export function getDashboardSections(role: UserRole): DashboardSection[] {
           title: "Pomoćni sadržaj",
           subtitle: "Ono što stanari i gosti vide u aplikaciji",
           items: [
+            { href: "/informacije", title: "Korisne informacije", description: "Uredite kućni red i uputstva", icon: "scroll" },
             { href: "/obavestenja", title: "Obaveštenja", description: "Pregled objava", icon: "bell" },
             { href: "/kontakti", title: "Kontakti", description: "Telefoni službi", icon: "phone" },
-            { href: "/informacije", title: "Informacije", description: "Kućni red i uputstva", icon: "scroll" },
           ],
         },
       ];

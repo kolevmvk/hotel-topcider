@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Source_Sans_3 } from "next/font/google";
-import { APP_DESCRIPTION, APP_NAME, THEME_COLOR } from "@/lib/constants";
+import { APP_DESCRIPTION, APP_NAME, APP_SHORT_NAME, THEME_COLOR } from "@/lib/constants";
 import { AppChrome } from "@/components/AppChrome";
 import "./globals.css";
 
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Topčider",
+    title: APP_SHORT_NAME,
   },
   formatDetection: {
     telephone: true,
@@ -59,7 +59,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Topčider" />
+        <meta name="apple-mobile-web-app-title" content={APP_SHORT_NAME} />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="min-h-dvh">

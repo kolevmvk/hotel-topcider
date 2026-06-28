@@ -49,7 +49,7 @@ export default function InstallGuide() {
                 <InstallStep
                   number={3}
                   title="Pritisnite Add"
-                  description="Potvrdite. Ikona Topčider će biti na početnom ekranu."
+                  description="Potvrdite. Ikona Vojnog hotela biće na početnom ekranu."
                 />
               </ol>
             </DetailPanel>

@@ -1,4 +1,4 @@
-import { STORAGE_KEYS } from "./constants";
+import { STORAGE_KEYS, INFO_SECTIONS } from "./constants";
 import { mockNotices } from "./mockNotices";
 import type {
   DezurniPotvrda,
@@ -10,6 +10,7 @@ import type {
   TaskCompletion,
   TaskObservation,
   User,
+  InfoSection,
 } from "./types";
 
 function isBrowser(): boolean {
@@ -229,4 +230,38 @@ export function addShiftLog(log: ShiftLog): void {
 
 export function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+const DEFAULT_INFO_SECTIONS: InfoSection[] = INFO_SECTIONS.map((s) => ({ ...s }));
+
+function ensureInfoSectionsSeeded(): void {
+  const existing = getItem<InfoSection[] | null>(STORAGE_KEYS.INFO_SECTIONS, null);
+  if (existing && existing.length > 0) return;
+  setItem(STORAGE_KEYS.INFO_SECTIONS, DEFAULT_INFO_SECTIONS);
+}
+
+export function getInfoSections(): InfoSection[] {
+  ensureInfoSectionsSeeded();
+  return getItem<InfoSection[]>(STORAGE_KEYS.INFO_SECTIONS, DEFAULT_INFO_SECTIONS);
+}
+
+export function updateInfoSection(
+  id: string,
+  updates: Partial<Pick<InfoSection, "title" | "content" | "icon">>
+): void {
+  setItem(
+    STORAGE_KEYS.INFO_SECTIONS,
+    getInfoSections().map((s) => (s.id === id ? { ...s, ...updates } : s))
+  );
+}
+
+export function addInfoSection(section: InfoSection): void {
+  setItem(STORAGE_KEYS.INFO_SECTIONS, [...getInfoSections(), section]);
+}
+
+export function deleteInfoSection(id: string): void {
+  setItem(
+    STORAGE_KEYS.INFO_SECTIONS,
+    getInfoSections().filter((s) => s.id !== id)
+  );
 }

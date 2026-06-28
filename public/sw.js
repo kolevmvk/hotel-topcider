@@ -1,4 +1,4 @@
-const CACHE_NAME = "hotel-topcider-v1";
+const CACHE_NAME = "vojni-hotel-v1";
 const STATIC_ASSETS = [
   "/",
   "/login",

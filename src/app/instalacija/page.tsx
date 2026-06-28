@@ -13,7 +13,7 @@ export default function InstalacijaPage() {
         <PageHeader
           label="Pristup"
           title="Instalacija aplikacije"
-          description="Dodajte Hotel Topčider na početni ekran telefona — jednostavno uputstvo korak po korak"
+          description="Dodajte Vojni hotel na početni ekran telefona — jednostavno uputstvo korak po korak"
           icon="install"
         />
 

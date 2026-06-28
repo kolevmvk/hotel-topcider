@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CONTACTS, APP_PHASE_LABEL, APP_PHASE_NOTICE } from "@/lib/constants";
+import { PORTAL_LOGIN_LEAD } from "@/lib/presentation";
+import { CONTACTS } from "@/lib/constants";
 import { loginDezurni, loginGost, loginStanar, loginUpravnik } from "@/lib/auth";
+import { trackBusiness } from "@/lib/analytics/client";
 import { AppIcon } from "@/lib/icons";
-import DemoAccessPanel from "@/components/DemoAccessPanel";
-import PresentationTour from "@/components/PresentationTour";
+import RoleQuickAccess from "@/components/RoleQuickAccess";
 import { useAuth } from "./AuthProvider";
 
 type Tab = "stanar" | "gost" | "dezurni" | "upravnik";
@@ -40,6 +41,7 @@ export default function LoginForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ loginType, identifier, success }),
       });
+      trackBusiness("app.login", { loginType, identifier, success }, "app.login", loginType);
     } catch {
       /* audit ne sme blokirati prijavu */
     }
@@ -91,22 +93,16 @@ export default function LoginForm() {
           className="flex h-12 w-12 shrink-0 items-center justify-center border border-ht-gold/50 bg-ht-navy text-xs font-bold tracking-[0.15em] text-ht-gold-light"
           aria-hidden="true"
         >
-          HT
+          VH
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-ht-gold">
-            Vojni hotel
-          </p>
           <h1 className="ht-display text-2xl leading-tight text-ht-navy sm:text-3xl">
-            Hotel Topčider
+            Vojni hotel
           </h1>
         </div>
       </header>
 
-      <p className="mb-4 rounded-lg border border-ht-border-light bg-ht-cream/40 px-3 py-2 text-xs leading-relaxed text-ht-muted">
-        <span className="font-semibold text-ht-navy">{APP_PHASE_LABEL}.</span>{" "}
-        {APP_PHASE_NOTICE}
-      </p>
+      <p className="mb-5 text-sm leading-relaxed text-ht-muted">{PORTAL_LOGIN_LEAD}</p>
 
       <div className="mb-5 grid grid-cols-2 border border-ht-border bg-ht-cream/40 p-1 sm:grid-cols-4">
         {TABS.map(({ key, label, icon }) => (
@@ -114,6 +110,8 @@ export default function LoginForm() {
             key={key}
             type="button"
             onClick={() => switchTab(key)}
+            data-track={`login.tab.${key}`}
+            data-track-label={label}
             className={`touch-target flex flex-col items-center justify-center gap-1 py-3 text-xs font-semibold uppercase tracking-wide transition-colors sm:flex-row sm:gap-2 sm:text-sm ${
               tab === key
                 ? "bg-ht-navy text-white"
@@ -250,14 +248,11 @@ export default function LoginForm() {
         )}
       </form>
 
-      <div className="mt-10">
-        <DemoAccessPanel />
-        <PresentationTour />
+      <RoleQuickAccess />
 
-        <p className="mt-6 text-center text-sm leading-relaxed text-ht-muted">
-          Ako imate problem sa prijavom, javite se dežurnoj službi.
-        </p>
-      </div>
+      <p className="mt-6 text-center text-sm leading-relaxed text-ht-muted">
+        Ako imate problem sa prijavom, javite se dežurnoj službi.
+      </p>
     </div>
   );
 }

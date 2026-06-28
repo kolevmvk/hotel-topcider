@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { APP_NAME } from "@/lib/constants";
 import { getHeaderLinks } from "@/lib/navigation";
 import { AppIcon } from "@/lib/icons";
@@ -12,6 +12,7 @@ const PUBLIC_PATHS = ["/access", "/login", "/register"];
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { session, isAuthenticated, isStaff, isUpravnik, role, logout } = useAuth();
   const unread = useUnreadMessages();
 
@@ -23,12 +24,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-ht-navy-dark shadow-[0_2px_20px_rgba(9,26,46,0.3)]">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
-        <Link href="/" className="flex min-w-0 items-center gap-3.5">
+        <Link href="/" data-track="nav.header.home" data-track-label="Početna" className="flex min-w-0 items-center gap-3.5">
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center border border-ht-gold/40 bg-ht-navy text-xs font-bold tracking-[0.15em] text-ht-gold-light"
             aria-hidden="true"
           >
-            HT
+            VH
           </div>
           <div className="min-w-0">
             <p className="ht-display truncate text-lg leading-tight text-white sm:text-xl">
@@ -50,6 +51,8 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  data-track={`nav.header.${link.href}`}
+                  data-track-label={link.label}
                   className={`touch-target relative inline-flex items-center gap-1.5 px-3 py-2 text-sm transition-colors ${
                     pathname.startsWith(link.href) && link.href !== "/"
                       ? "text-ht-gold-light"
@@ -79,7 +82,19 @@ export default function Header() {
             )}
             <button
               type="button"
+              onClick={() => {
+                logout();
+                router.push("/login");
+              }}
+              className="touch-target inline-flex px-2 py-1.5 text-sm text-white/70 transition-colors hover:text-white"
+            >
+              Promeni ulogu
+            </button>
+            <button
+              type="button"
               onClick={logout}
+              data-track="action.logout"
+              data-track-label="Odjava"
               className="touch-target px-3 py-1.5 text-sm text-white/60 transition-colors hover:text-white"
             >
               Odjava

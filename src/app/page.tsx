@@ -27,6 +27,8 @@ function DashboardCard({ item }: { item: DashboardItem }) {
   return (
     <Link
       href={item.href}
+      data-track={`home.card.${item.href}`}
+      data-track-label={item.title}
       className="ht-panel ht-card-hover group flex flex-col p-6 sm:p-7"
     >
       <div className="mb-5 flex h-11 w-11 items-center justify-center border border-ht-border-light bg-ht-cream/40 text-ht-navy transition-colors group-hover:border-ht-gold/40 group-hover:bg-ht-navy group-hover:text-ht-gold-light">

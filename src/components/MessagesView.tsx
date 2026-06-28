@@ -16,6 +16,7 @@ import { useAuth } from "./AuthProvider";
 import EmptyState from "./EmptyState";
 import MessageCard from "./MessageCard";
 import { AppIcon } from "@/lib/icons";
+import { trackBusiness } from "@/lib/analytics/client";
 
 type MailTab = "inbox" | "sent" | "compose";
 
@@ -109,6 +110,8 @@ export default function MessagesView() {
       tekst: tekst.trim(),
       createdAt: new Date().toISOString(),
     });
+
+    trackBusiness("message.send", { toRole, toName }, "message.send", toRole);
 
     setNaslov("");
     setTekst("");

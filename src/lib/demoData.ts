@@ -9,21 +9,21 @@ export const DEMO_ACCOUNTS = {
     username: "upravnik",
     pin: "0000",
     role: "upravnik" as const,
-    description: "Upravljanje obaveštenjima, prijava i korisnika",
+    description: "Pregled celog hotela — prijave, obaveštenja, ljudi i sobe",
   },
   dezurni: {
     label: "Dežurna služba",
     username: "dezurni",
     pin: "1111",
     role: "dezurni" as const,
-    description: "Pregled prijava i potvrda preduzetih mera",
+    description: "Inbox, prijave i poruke — odmah na početnoj",
   },
   stanar1: {
     label: "Marko Petrović",
     room: "205",
     pin: "1234",
     role: "stanar" as const,
-    description: "Soba 205 — ima 3 prijave u različitim statusima",
+    description: "Već ima prijave — pogledajte status ili pošaljite novu",
   },
   stanar2: {
     label: "Jelena Jovanović",
@@ -44,7 +44,7 @@ export const DEMO_ACCOUNTS = {
     room: "401",
     pin: "5678",
     role: "gost" as const,
-    description: "Soba 401 — gost, čeka potvrdu prijema",
+    description: "Prijem sobe 401 i poruke dežurnoj službi",
   },
 } as const;
 

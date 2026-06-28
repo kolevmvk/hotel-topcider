@@ -3,31 +3,38 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { NOTICE_CATEGORIES, PROBLEM_CATEGORIES } from "@/lib/constants";
+import type { IconName } from "@/lib/icons";
 import { AppIcon } from "@/lib/icons";
 import { getRooms } from "@/lib/rooms";
 import {
   addNotice,
   deleteNotice,
+  addInfoSection,
+  deleteInfoSection,
   generateId,
   getNotices,
   getProblems,
   getUsers,
+  getInfoSections,
   updateDezurniPotvrda,
   updateNotice,
+  updateInfoSection,
   updateProblemStatus,
   updateUserStatus,
 } from "@/lib/storage";
 import { getUserStatusLabel } from "@/lib/constants";
-import type { Notice, NoticeCategory, NoticePriority, ProblemReport, User, UserStatus } from "@/lib/types";
+import type { Notice, NoticeCategory, NoticePriority, ProblemReport, User, UserStatus, InfoSection } from "@/lib/types";
 import { useAuth } from "./AuthProvider";
 import EmptyState from "./EmptyState";
 import NoticeCard from "./NoticeCard";
 import ProblemCard from "./ProblemCard";
+import InfoCard from "./InfoCard";
 import TasksPanel from "./TasksPanel";
 import ShiftLogPanel from "./ShiftLogPanel";
 import AccessAuditPanel from "./AccessAuditPanel";
 import ConfirmDialog from "./ConfirmDialog";
 import Link from "next/link";
+import { trackBusiness } from "@/lib/analytics/client";
 
 type PanelTab =
   | "pregled"
@@ -96,17 +103,22 @@ export default function AdminPanel() {
   const [problems, setProblems] = useState<ProblemReport[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [notices, setNotices] = useState<Notice[]>([]);
+  const [infoSections, setInfoSections] = useState<InfoSection[]>([]);
   const [activeTab, setActiveTab] = useState<PanelTab>("problems");
   const [problemFilter, setProblemFilter] = useState<ProblemFilter>("all");
   const [categoryFilter, setCategoryFilter] = useState<ProblemReport["category"] | null>(null);
   const [showNoticeForm, setShowNoticeForm] = useState(false);
   const [editingNotice, setEditingNotice] = useState<Notice | null>(null);
   const [deleteNoticeId, setDeleteNoticeId] = useState<string | null>(null);
+  const [showInfoForm, setShowInfoForm] = useState(false);
+  const [editingInfoSection, setEditingInfoSection] = useState<InfoSection | null>(null);
+  const [deleteInfoSectionId, setDeleteInfoSectionId] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
     setProblems(getProblems());
     setUsers(getUsers());
     setNotices(getNotices());
+    setInfoSections(getInfoSections());
   }, []);
 
   useEffect(() => {
@@ -182,11 +194,13 @@ export default function AdminPanel() {
 
   function handleUserStatus(userId: string, status: UserStatus) {
     updateUserStatus(userId, status);
+    trackBusiness("admin.user_status", { userId, status });
     refresh();
   }
 
   function handleStatusChange(id: string, status: ProblemReport["status"]) {
     updateProblemStatus(id, status);
+    trackBusiness("admin.problem_status", { problemId: id, status });
     refresh();
   }
 
@@ -223,6 +237,35 @@ export default function AdminPanel() {
     setDeleteNoticeId(id);
   }
 
+  function handleSaveInfoSection(data: Omit<InfoSection, "id"> & { id?: string }) {
+    if (data.id) {
+      updateInfoSection(data.id, {
+        title: data.title,
+        content: data.content,
+        icon: data.icon,
+      });
+    } else {
+      addInfoSection({
+        id: generateId(),
+        title: data.title,
+        content: data.content,
+        icon: data.icon,
+      });
+    }
+    setShowInfoForm(false);
+    setEditingInfoSection(null);
+    trackBusiness("admin.info_section", { sectionId: data.id ?? "new" });
+    refresh();
+  }
+
+  function confirmDeleteInfoSection() {
+    if (deleteInfoSectionId) {
+      deleteInfoSection(deleteInfoSectionId);
+      setDeleteInfoSectionId(null);
+      refresh();
+    }
+  }
+
   function confirmDeleteNotice() {
     if (deleteNoticeId) {
       deleteNotice(deleteNoticeId);
@@ -246,7 +289,7 @@ export default function AdminPanel() {
         { key: "pregled" as const, label: "Pregled", icon: "list" as const },
         { key: "problems" as const, label: "Prijave", icon: "clipboard" as const },
         { key: "people" as const, label: "Ljudi", icon: "users" as const },
-        { key: "content" as const, label: "Sadržaj", icon: "bell" as const },
+        { key: "content" as const, label: "Sadržaj", icon: "scroll" as const },
         { key: "operativa" as const, label: "Operativa", icon: "task" as const },
       ]
     : [
@@ -609,8 +652,82 @@ export default function AdminPanel() {
       )}
 
       {activeTab === "content" && isUpravnik && (
-        <div key="content" className="ht-panel-section space-y-4">
-          {isUpravnik && (
+        <div key="content" className="ht-panel-section space-y-8">
+          <section className="space-y-4">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-ht-navy">Korisne informacije</h3>
+                <p className="mt-1 text-sm text-ht-muted">
+                  Kućni red i uputstva — vide stanari i gosti na{" "}
+                  <Link href="/informacije" className="font-medium text-ht-navy underline underline-offset-2">
+                    /informacije
+                  </Link>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingInfoSection(null);
+                  setShowInfoForm(true);
+                }}
+                className="ht-btn-primary inline-flex items-center gap-2"
+              >
+                <AppIcon name="scroll" className="h-4 w-4" />
+                Nova informacija
+              </button>
+            </div>
+
+            {(showInfoForm || editingInfoSection) && (
+              <InfoSectionEditor
+                section={editingInfoSection}
+                onSave={handleSaveInfoSection}
+                onCancel={() => {
+                  setShowInfoForm(false);
+                  setEditingInfoSection(null);
+                }}
+              />
+            )}
+
+            {infoSections.length === 0 ? (
+              <EmptyState
+                icon="scroll"
+                title="Nema informacija"
+                description="Dodajte sekcije koje stanari vide u odeljku Korisne informacije."
+              />
+            ) : (
+              infoSections.map((section) => (
+                <div key={section.id} className="space-y-2">
+                  <InfoCard
+                    title={section.title}
+                    content={section.content}
+                    icon={section.icon as IconName}
+                  />
+                  <div className="flex flex-wrap gap-2 px-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingInfoSection(section);
+                        setShowInfoForm(true);
+                      }}
+                      className="ht-btn-secondary text-sm"
+                    >
+                      Uredi
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteInfoSectionId(section.id)}
+                      className="ht-btn-secondary text-sm text-ht-danger"
+                    >
+                      Obriši
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </section>
+
+          <section className="space-y-4 border-t border-ht-border-light pt-8">
+            <h3 className="text-lg font-semibold text-ht-navy">Obaveštenja</h3>
             <div className="flex flex-wrap gap-3">
               <button
                 type="button"
@@ -624,7 +741,6 @@ export default function AdminPanel() {
                 Novo obaveštenje
               </button>
             </div>
-          )}
 
           {(showNoticeForm || editingNotice) && isUpravnik && (
             <NoticeEditor
@@ -681,6 +797,7 @@ export default function AdminPanel() {
               </div>
             ))
           )}
+          </section>
         </div>
       )}
 
@@ -756,6 +873,16 @@ export default function AdminPanel() {
         danger
         onConfirm={confirmDeleteNotice}
         onCancel={() => setDeleteNoticeId(null)}
+      />
+
+      <ConfirmDialog
+        open={deleteInfoSectionId !== null}
+        title="Obriši informaciju"
+        message="Da li ste sigurni da želite da obrišete ovu sekciju?"
+        confirmLabel="Obriši"
+        danger
+        onConfirm={confirmDeleteInfoSection}
+        onCancel={() => setDeleteInfoSectionId(null)}
       />
     </div>
   );
@@ -871,6 +998,94 @@ function NoticeEditor({
             <span className="text-base text-ht-text">Aktuelno obaveštenje</span>
           </label>
         </div>
+      </div>
+
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <button type="submit" className="ht-btn-primary flex-1">Sačuvaj</button>
+        <button type="button" onClick={onCancel} className="ht-btn-secondary flex-1">
+          Otkaži
+        </button>
+      </div>
+    </form>
+  );
+}
+
+const INFO_SECTION_ICONS: { value: IconName; label: string }[] = [
+  { value: "scroll", label: "Dokument" },
+  { value: "bed", label: "Smeštaj" },
+  { value: "sparkles", label: "Higijena" },
+  { value: "wifi", label: "Internet" },
+  { value: "utensils", label: "Restoran" },
+  { value: "shirt", label: "Vešeraj" },
+  { value: "clock", label: "Dežurna" },
+  { value: "wrench", label: "Održavanje" },
+  { value: "info", label: "Opšte" },
+];
+
+function InfoSectionEditor({
+  section,
+  onSave,
+  onCancel,
+}: {
+  section: InfoSection | null;
+  onSave: (data: Omit<InfoSection, "id"> & { id?: string }) => void;
+  onCancel: () => void;
+}) {
+  const [title, setTitle] = useState(section?.title || "");
+  const [content, setContent] = useState(section?.content || "");
+  const [icon, setIcon] = useState(section?.icon || "info");
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    onSave({
+      id: section?.id,
+      title: title.trim(),
+      content: content.trim(),
+      icon,
+    });
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="ht-panel-bordered space-y-4 p-6">
+      <h3 className="ht-display text-xl text-ht-navy">
+        {section ? "Uredi informaciju" : "Nova informacija"}
+      </h3>
+
+      <div>
+        <label htmlFor="info-title" className="ht-field-label">Naslov</label>
+        <input
+          id="info-title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          className="ht-input"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="info-content" className="ht-field-label">Tekst</label>
+        <textarea
+          id="info-content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          required
+          rows={5}
+          className="ht-input resize-y"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="info-icon" className="ht-field-label">Ikona</label>
+        <select
+          id="info-icon"
+          value={icon}
+          onChange={(e) => setIcon(e.target.value)}
+          className="ht-input"
+        >
+          {INFO_SECTION_ICONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row">

@@ -18,6 +18,7 @@ import {
 import { getUserById } from "@/lib/storage";
 import type { HotelRoom, RoomHandover, User } from "@/lib/types";
 import { AppIcon } from "@/lib/icons";
+import { trackBusiness } from "@/lib/analytics/client";
 import { useAuth } from "./AuthProvider";
 import StepGuide, { type StepItem } from "./StepGuide";
 
@@ -280,6 +281,7 @@ function GostRoomFlow({
   function handleConfirmPrijem() {
     if (!handover) return;
     confirmPrijemByUser(handover.id);
+    trackBusiness("handover.prijem_confirm", { room: room.broj }, "handover.prijem", room.broj);
     setMessage("Prijem sobe je potvrđen. Dežurna služba će završiti evidenciju.");
     refresh();
   }
@@ -292,6 +294,7 @@ function GostRoomFlow({
       setMessage(result.error);
       return;
     }
+    trackBusiness("handover.predaja_start", { room: room.broj }, "handover.predaja", room.broj);
     setMessage("Pregledajte inventar i potvrdite predaju sobe.");
     refresh();
   }
@@ -299,6 +302,7 @@ function GostRoomFlow({
   function handleConfirmPredaja() {
     if (!handover) return;
     confirmPredajaByUser(handover.id);
+    trackBusiness("handover.predaja_confirm", { room: room.broj }, "handover.predaja", room.broj);
     setMessage("Predaja je poslata dežurnoj službi na potvrdu.");
     refresh();
   }
@@ -313,7 +317,7 @@ function GostRoomFlow({
       <div className="ht-panel-bordered space-y-6 p-8 text-center">
         <AppIcon name="check" className="mx-auto h-12 w-12 text-emerald-600" />
         <h2 className="ht-display text-2xl text-ht-navy">Predaja završena</h2>
-        <p className="text-sm text-ht-muted">Hvala na boravku u hotelu Topčider.</p>
+        <p className="text-sm text-ht-muted">Hvala na boravku u Vojnom hotelu.</p>
         <button type="button" onClick={handleLogout} className="ht-btn-primary">
           Odjava
         </button>
@@ -399,6 +403,7 @@ function StanarRoomView({
   function handleConfirmPrijem() {
     if (!handover) return;
     confirmPrijemByUser(handover.id);
+    trackBusiness("handover.prijem_confirm", { room: room.broj }, "handover.prijem", room.broj);
     setMessage("Prijem sobe je potvrđen. Dežurna služba će završiti evidenciju.");
     refresh();
   }
@@ -412,6 +417,7 @@ function StanarRoomView({
       return;
     }
     setShowPredaja(true);
+    trackBusiness("handover.predaja_start", { room: room.broj }, "handover.predaja", room.broj);
     setMessage("Pregledajte inventar i potvrdite predaju sobe.");
     refresh();
   }
@@ -419,6 +425,7 @@ function StanarRoomView({
   function handleConfirmPredaja() {
     if (!handover) return;
     confirmPredajaByUser(handover.id);
+    trackBusiness("handover.predaja_confirm", { room: room.broj }, "handover.predaja", room.broj);
     setMessage("Predaja je poslata dežurnoj službi na potvrdu.");
     refresh();
   }

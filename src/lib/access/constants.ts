@@ -6,6 +6,8 @@ export const ACCESS_SESSION_MAX_AGE_SEC = 7 * 24 * 60 * 60;
 export const PUBLIC_PATHS = [
   "/access",
   "/api/access/login",
+  "/api/access/status",
+  "/api/analytics/security",
 ] as const;
 
 export function isPublicPath(pathname: string): boolean {
