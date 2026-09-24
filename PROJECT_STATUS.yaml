@@ -1,0 +1,55 @@
+# Declared status; not a verified release. Source: repository README/docs and Git HEAD.
+# 0/0 module progress means unquantified; empty risk/debt lists do not prove absence.
+# Blocker since dates are the source-document commit dates, not inferred incident dates.
+schema_version: 1
+project:
+  id: hotel-topcider
+  name: Vojni hotel / Hotel Topčider
+  repo: kolevmvk/hotel-topcider
+  kind: web
+  stage: prototype
+updated:
+  at: "2026-09-24T10:50:50Z"
+  by: codex
+  at_commit: "883cac01dbac753d322574e29f71969d50da0c89"
+summary: Next.js PWA demonstration for residents and hotel staff, with notices, problem reports, messages,
+  tasks and manager views. README explicitly identifies demo data in localStorage and a separate server-side
+  access gate. It is not an official hotel application or verified production service.
+modules:
+- id: M1
+  name: Demo application
+  path: src
+  status: in_progress
+  progress:
+    done: 0
+    total: 0
+    basis: 'Not quantified: no acceptance-item count has been established for this snapshot; 0/0 is unknown
+      progress, not zero-percent completion.'
+  depends_on: []
+  docs:
+  - README.md
+risks: []
+blockers: []
+technical_debt: []
+pending_verification:
+- id: V1
+  claim: The documented repository checks and primary workflows succeed on this checkout.
+  module: null
+  how: npm run build; exercise access gate, demo roles and resident/staff flows in a browser.
+  status: not_run
+  evidence: null
+next_actions: []
+release:
+  target_version: null
+  checklist:
+  - id: RC1
+    title: 'Release acceptance: build, integrations and user/device flows checked for the intended release.'
+    status: not_run
+    evidence: null
+agents:
+  last_session:
+    agent: codex
+    at: "2026-09-24T10:50:50Z"
+    summary: Created a repository-grounded Control Center status snapshot; application/release checks
+      not run.
+    commits: 1
